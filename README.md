@@ -1,8 +1,6 @@
 ![image](https://github.com/user-attachments/assets/aaab968c-165b-456f-ad67-946e8e7b9feb)
 
 
-Here's the updated **README.md** file reflecting the use of **Lightweight Charts** from TradingView for the frontend:
-
 ---
 
 # End-to-End Exchange Platform: README
@@ -152,5 +150,3 @@ Refer to the detailed API routes provided in the [API Routes Section](#api-route
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
-
-This README now highlights the integration of **Lightweight Charts**, including technical details, example usage, and the features it brings to the trading platform.
