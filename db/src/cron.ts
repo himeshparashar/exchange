@@ -1,11 +1,15 @@
 import { Client } from 'pg'; 
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const client = new Client({
-    user: 'your_user',
-    host: 'localhost',
-    database: 'my_database',
-    password: 'your_password',
-    port: 5432,
+    user: process.env.DB_USER || 'your_user',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'my_database',
+    password: process.env.DB_PASSWORD || 'your_password',
+    port: parseInt(process.env.DB_PORT || '5432'),
 });
 client.connect();
 

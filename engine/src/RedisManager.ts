@@ -3,6 +3,10 @@ import { RedisClientType, createClient } from "redis";
 import { ORDER_UPDATE, TRADE_ADDED } from "./types";
 import { WsMessage } from "./types/toWs";
 import { MessageToApi } from "./types/toApi";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 type DbMessage = {
     type: typeof TRADE_ADDED,
@@ -32,7 +36,8 @@ export class RedisManager {
     private static instance: RedisManager;
 
     constructor() {
-        this.client = createClient();
+        const redisUrl = `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || '6379'}`;
+        this.client = createClient({ url: redisUrl });
         this.client.connect();
     }
 

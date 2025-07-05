@@ -1,5 +1,9 @@
 import { RedisClientType, createClient } from "redis";
 import { UserManager } from "./UserManager";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 export class SubscriptionManager {
     private static instance: SubscriptionManager;
@@ -8,7 +12,8 @@ export class SubscriptionManager {
     private redisClient: RedisClientType;
 
     private constructor() {
-        this.redisClient = createClient();
+        const redisUrl = `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || '6379'}`;
+        this.redisClient = createClient({ url: redisUrl });
         this.redisClient.connect();
     }
 

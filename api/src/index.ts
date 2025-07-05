@@ -5,6 +5,10 @@ import { depthRouter } from "./routes/depth";
 import { tradesRouter } from "./routes/trades";
 import { klineRouter } from "./routes/kline";
 import { tickersRouter } from "./routes/ticker";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -16,7 +20,7 @@ app.use("/api/v1/trades", tradesRouter);
 app.use("/api/v1/klines", klineRouter);
 app.use("/api/v1/tickers", tickersRouter);
 
-
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+const port = parseInt(process.env.API_PORT || "3000");
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });

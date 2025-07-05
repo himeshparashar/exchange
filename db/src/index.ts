@@ -1,13 +1,17 @@
 import { Client } from "pg";
 import { createClient } from "redis";
 import type { DbMessage } from "./types";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 const pgClient = new Client({
-  user: "your_user",
-  host: "localhost",
-  database: "my_database",
-  password: "your_password",
-  port: 5432,
+  user: process.env.DB_USER || "your_user",
+  host: process.env.DB_HOST || "localhost",
+  database: process.env.DB_NAME || "my_database",
+  password: process.env.DB_PASSWORD || "your_password",
+  port: parseInt(process.env.DB_PORT || "5432"),
 });
 pgClient.connect();
 
@@ -68,7 +72,9 @@ async function updateTickerFromTrade(
 }
 
 async function main() {
-  const redisClient = createClient();
+  const redisClient = createClient({
+    url: `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || '6379'}`
+  });
   await redisClient.connect();
   console.log("connected to redis");
 
