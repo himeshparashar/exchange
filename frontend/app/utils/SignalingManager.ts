@@ -3,11 +3,16 @@ import { Ticker } from "./types";
 // export const BASE_URL = "wss://ws.backpack.exchange/"
 export const BASE_URL = "ws://localhost:3001"
 
+interface CallbackEntry {
+    callback: (data: any) => void;
+    id: string;
+}
+
 export class SignalingManager {
     private ws: WebSocket;
     private static instance: SignalingManager;
     private bufferedMessages: any[] = [];
-    private callbacks: any = {};
+    private callbacks: { [key: string]: CallbackEntry[] } = {};
     private id: number;
     private initialized: boolean = false;
 
@@ -90,7 +95,7 @@ export class SignalingManager {
 
     async deRegisterCallback(type: string, id: string) {
         if (this.callbacks[type]) {
-            const index = this.callbacks[type].findIndex(callback => callback.id === id);
+            const index = this.callbacks[type].findIndex((callback: CallbackEntry) => callback.id === id);
             if (index !== -1) {
                 this.callbacks[type].splice(index, 1);
             }
