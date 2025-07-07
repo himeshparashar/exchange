@@ -19,7 +19,8 @@ export class SubscriptionManager {
                 tls: true
             }
         });
-        this.redisClient.connect();
+        this.redisClient.connect().catch(console.error);
+        this.redisClient.on('error', (err) => console.error('Redis Client Error:', err));
     }
 
     public static getInstance() {
