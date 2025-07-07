@@ -22,7 +22,7 @@ export function TradeView({
         if (chartManagerRef.current) {
           chartManagerRef.current.destroy();
         }
-        console.log(klineData)
+        console.log("klinedata",klineData)
         const chartManager = new ChartManager(
           chartRef.current,
           [
