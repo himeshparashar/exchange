@@ -17,6 +17,7 @@ export class SignalingManager {
     private initialized: boolean = false;
 
     private constructor() {
+        console.log("Connecting to WebSocket at", BASE_URL);
         this.ws = new WebSocket(BASE_URL);
         this.bufferedMessages = [];
         this.id = 1;
