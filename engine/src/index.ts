@@ -21,6 +21,7 @@ async function main() {
         if (!response) {
 
         }  else {
+            console.log(`Processing message: ${response}`);
             engine.process(JSON.parse(response));
         }        
     }

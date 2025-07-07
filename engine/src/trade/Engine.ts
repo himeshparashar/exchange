@@ -42,18 +42,23 @@ export class Engine {
     }
 
     saveSnapshot() {
+        console.log("Saving snapshot to disk...");
         const snapshotSnapshot = {
             orderbooks: this.orderbooks.map(o => o.getSnapshot()),
             balances: Array.from(this.balances.entries())
         }
         fs.writeFileSync("./snapshot.json", JSON.stringify(snapshotSnapshot));
+        console.log(`Snapshot saved - ${this.orderbooks.length} orderbooks, ${this.balances.size} user balances`);
     }
 
     process({ message, clientId }: {message: MessageFromApi, clientId: string}) {
+        console.log(`Processing message: ${message.type} from client: ${clientId}`);
         switch (message.type) {
             case CREATE_ORDER:
+                console.log(`Creating order for market: ${message.data.market}, price: ${message.data.price}, quantity: ${message.data.quantity}, side: ${message.data.side}, userId: ${message.data.userId}`);
                 try {
                     const { executedQty, fills, orderId } = this.createOrder(message.data.market, message.data.price, message.data.quantity, message.data.side, message.data.userId);
+                    console.log(`Order created successfully - OrderId: ${orderId}, ExecutedQty: ${executedQty}, Fills: ${fills.length}`);
                     RedisManager.getInstance().sendToApi(clientId, {
                         type: "ORDER_PLACED",
                         payload: {
@@ -63,7 +68,7 @@ export class Engine {
                         }
                     });
                 } catch (e) {
-                    console.log(e);
+                    console.log("Error creating order:", e);
                     RedisManager.getInstance().sendToApi(clientId, {
                         type: "ORDER_CANCELLED",
                         payload: {
@@ -75,6 +80,7 @@ export class Engine {
                 }
                 break;
             case CANCEL_ORDER:
+                console.log(`Cancelling order: ${message.data.orderId} for market: ${message.data.market}`);
                 try {
                     const orderId = message.data.orderId;
                     const cancelMarket = message.data.market;
@@ -90,6 +96,8 @@ export class Engine {
                         throw new Error("No order found");
                     }
 
+                    console.log(`Found order to cancel: ${orderId}, side: ${order.side}, quantity: ${order.quantity}, filled: ${order.filled}`);
+
                     if (order.side === "buy") {
                         const price = cancelOrderbook.cancelBid(order)
                         const leftQuantity = (order.quantity - order.filled) * order.price;
@@ -97,6 +105,7 @@ export class Engine {
                         this.balances.get(order.userId)[BASE_CURRENCY].available += leftQuantity;
                         //@ts-ignore
                         this.balances.get(order.userId)[BASE_CURRENCY].locked -= leftQuantity;
+                        console.log(`Released ${leftQuantity} ${BASE_CURRENCY} for user ${order.userId}`);
                         if (price) {
                             this.sendUpdatedDepthAt(price.toString(), cancelMarket);
                         }
@@ -107,11 +116,13 @@ export class Engine {
                         this.balances.get(order.userId)[quoteAsset].available += leftQuantity;
                         //@ts-ignore
                         this.balances.get(order.userId)[quoteAsset].locked -= leftQuantity;
+                        console.log(`Released ${leftQuantity} ${quoteAsset} for user ${order.userId}`);
                         if (price) {
                             this.sendUpdatedDepthAt(price.toString(), cancelMarket);
                         }
                     }
 
+                    console.log(`Order cancelled successfully: ${orderId}`);
                     RedisManager.getInstance().sendToApi(clientId, {
                         type: "ORDER_CANCELLED",
                         payload: {
@@ -122,44 +133,49 @@ export class Engine {
                     });
                     
                 } catch (e) {
-                    console.log("Error hwile cancelling order", );
-                    console.log(e);
+                    console.log("Error while cancelling order:", e);
                 }
                 break;
             case GET_OPEN_ORDERS:
+                console.log(`Getting open orders for market: ${message.data.market}, userId: ${message.data.userId}`);
                 try {
                     const openOrderbook = this.orderbooks.find(o => o.ticker() === message.data.market);
                     if (!openOrderbook) {
                         throw new Error("No orderbook found");
                     }
                     const openOrders = openOrderbook.getOpenOrders(message.data.userId);
+                    console.log(`Found ${openOrders.length} open orders for user ${message.data.userId}`);
 
                     RedisManager.getInstance().sendToApi(clientId, {
                         type: "OPEN_ORDERS",
                         payload: openOrders
                     }); 
                 } catch(e) {
-                    console.log(e);
+                    console.log("Error getting open orders:", e);
                 }
                 break;
             case ON_RAMP:
                 const userId = message.data.userId;
                 const amount = Number(message.data.amount);
+                console.log(`On-ramping ${amount} ${BASE_CURRENCY} for user ${userId}`);
                 this.onRamp(userId, amount);
                 break;
             case GET_DEPTH:
+                console.log(`Getting depth for market: ${message.data.market}`);
                 try {
                     const market = message.data.market;
                     const orderbook = this.orderbooks.find(o => o.ticker() === market);
                     if (!orderbook) {
                         throw new Error("No orderbook found");
                     }
+                    const depth = orderbook.getDepth();
+                    console.log(`Depth retrieved - Bids: ${depth.bids.length}, Asks: ${depth.asks.length}`);
                     RedisManager.getInstance().sendToApi(clientId, {
                         type: "DEPTH",
-                        payload: orderbook.getDepth()
+                        payload: depth
                     });
                 } catch (e) {
-                    console.log(e);
+                    console.log("Error getting depth:", e);
                     RedisManager.getInstance().sendToApi(clientId, {
                         type: "DEPTH",
                         payload: {
@@ -177,16 +193,21 @@ export class Engine {
     }
 
     createOrder(market: string, price: string, quantity: string, side: "buy" | "sell", userId: string) {
+        console.log(`createOrder called - Market: ${market}, Price: ${price}, Quantity: ${quantity}, Side: ${side}, UserId: ${userId}`);
 
         const orderbook = this.orderbooks.find(o => o.ticker() === market)
         const baseAsset = market.split("_")[0];
         const quoteAsset = market.split("_")[1];
 
+        console.log(`Market assets - Base: ${baseAsset}, Quote: ${quoteAsset}`);
+
         if (!orderbook) {
+            console.log("No orderbook found for market:", market);
             throw new Error("No orderbook found");
         }
 
         this.checkAndLockFunds(baseAsset, quoteAsset, side, userId, quoteAsset, price, quantity);
+        console.log("Funds checked and locked successfully");
 
         const order: Order = {
             price: Number(price),
@@ -197,13 +218,20 @@ export class Engine {
             userId
         }
         
+        console.log(`Order created with ID: ${order.orderId}`);
+        
         const { fills, executedQty } = orderbook.addOrder(order);
+        console.log(`Order added to orderbook - ExecutedQty: ${executedQty}, Fills: ${fills.length}`);
+        
         this.updateBalance(userId, baseAsset, quoteAsset, side, fills, executedQty);
+        console.log("Balance updated successfully");
 
         this.createDbTrades(fills, market, userId);
         this.updateDbOrders(order, executedQty, fills, market);
         this.publisWsDepthUpdates(fills, price, side, market);
         this.publishWsTrades(fills, userId, market);
+        console.log("Database and WebSocket updates sent");
+        
         return { executedQty, fills, orderId: order.orderId };
     }
 
@@ -359,30 +387,52 @@ export class Engine {
     }
 
     checkAndLockFunds(baseAsset: string, quoteAsset: string, side: "buy" | "sell", userId: string, asset: string, price: string, quantity: string) {
+        console.log(`checkAndLockFunds - User: ${userId}, Side: ${side}, BaseAsset: ${baseAsset}, QuoteAsset: ${quoteAsset}, Price: ${price}, Quantity: ${quantity}`);
+        
+        const userBalance = this.balances.get(userId);
+        if (!userBalance) {
+            console.log(`No balance found for user: ${userId}`);
+            throw new Error("User not found");
+        }
+        
         if (side === "buy") {
-            if ((this.balances.get(userId)?.[quoteAsset]?.available || 0) < Number(quantity) * Number(price)) {
+            const requiredAmount = Number(quantity) * Number(price);
+            const availableBalance = userBalance[quoteAsset]?.available || 0;
+            console.log(`Buy order - Required: ${requiredAmount} ${quoteAsset}, Available: ${availableBalance}`);
+            
+            if (availableBalance < requiredAmount) {
+                console.log(`Insufficient funds - Required: ${requiredAmount}, Available: ${availableBalance}`);
                 throw new Error("Insufficient funds");
             }
             //@ts-ignore
-            this.balances.get(userId)[quoteAsset].available = this.balances.get(userId)?.[quoteAsset].available - (Number(quantity) * Number(price));
+            this.balances.get(userId)[quoteAsset].available = this.balances.get(userId)?.[quoteAsset].available - requiredAmount;
             
             //@ts-ignore
-            this.balances.get(userId)[quoteAsset].locked = this.balances.get(userId)?.[quoteAsset].locked + (Number(quantity) * Number(price));
+            this.balances.get(userId)[quoteAsset].locked = this.balances.get(userId)?.[quoteAsset].locked + requiredAmount;
+            console.log(`Locked ${requiredAmount} ${quoteAsset} for user ${userId}`);
         } else {
-            if ((this.balances.get(userId)?.[baseAsset]?.available || 0) < Number(quantity)) {
+            const requiredQuantity = Number(quantity);
+            const availableBalance = userBalance[baseAsset]?.available || 0;
+            console.log(`Sell order - Required: ${requiredQuantity} ${baseAsset}, Available: ${availableBalance}`);
+            
+            if (availableBalance < requiredQuantity) {
+                console.log(`Insufficient funds - Required: ${requiredQuantity}, Available: ${availableBalance}`);
                 throw new Error("Insufficient funds");
             }
             //@ts-ignore
-            this.balances.get(userId)[baseAsset].available = this.balances.get(userId)?.[baseAsset].available - (Number(quantity));
+            this.balances.get(userId)[baseAsset].available = this.balances.get(userId)?.[baseAsset].available - requiredQuantity;
             
             //@ts-ignore
-            this.balances.get(userId)[baseAsset].locked = this.balances.get(userId)?.[baseAsset].locked + Number(quantity);
+            this.balances.get(userId)[baseAsset].locked = this.balances.get(userId)?.[baseAsset].locked + requiredQuantity;
+            console.log(`Locked ${requiredQuantity} ${baseAsset} for user ${userId}`);
         }
     }
 
     onRamp(userId: string, amount: number) {
+        console.log(`onRamp called - UserId: ${userId}, Amount: ${amount}`);
         const userBalance = this.balances.get(userId);
         if (!userBalance) {
+            console.log(`Creating new balance entry for user: ${userId}`);
             this.balances.set(userId, {
                 [BASE_CURRENCY]: {
                     available: amount,
@@ -390,8 +440,10 @@ export class Engine {
                 }
             });
         } else {
+            console.log(`Adding ${amount} to existing balance for user: ${userId}`);
             userBalance[BASE_CURRENCY].available += amount;
         }
+        console.log(`User ${userId} now has ${this.balances.get(userId)?.[BASE_CURRENCY].available} ${BASE_CURRENCY} available`);
     }
 
     setBaseBalances() {
