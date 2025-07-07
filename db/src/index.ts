@@ -73,7 +73,7 @@ async function updateTickerFromTrade(
 
 async function main() {
   const redisClient = createClient({
-    url: `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || '6379'}`
+    url: process.env.REDIS_URL || `redis://localhost:6379`
   });
   await redisClient.connect();
   console.log("connected to redis");
