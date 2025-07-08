@@ -7,11 +7,11 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    fontSize: {
-      xs: "0.7rem",
-      sm: "0.8rem",
-    },
     extend: {
+      fontSize: {
+        xs: "0.7rem",
+        sm: "0.8rem",
+      },
       colors: {
         greenBackgroundTransparent: 'rgba(0,194,120,.12)',
         redBackgroundTransparent: 'rgba(234,56,59,.12)',

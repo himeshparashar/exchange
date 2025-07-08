@@ -13,17 +13,12 @@ export const Appbar = () => {
             <div className="flex justify-between items-center p-4 max-w-7xl mx-auto">
                 <div className="flex items-center space-x-8">
                     <div 
-                        className="text-2xl font-black flex items-center cursor-pointer group" 
+                        className="text-2xl font-black flex items-center cursor-pointer hover:opacity-80 transition-opacity duration-200" 
                         onClick={() => router.push('/')}
                     >
-                        <div className="relative">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
-                            <div className="relative bg-black px-3 py-2 rounded-lg border border-slate-800">
-                                <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                                    TradeSphere
-                                </span>
-                            </div>
-                        </div>
+                        <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                            TradeSphere
+                        </span>
                     </div>
                     <nav className="flex items-center space-x-8">
                         <div 
@@ -62,14 +57,8 @@ export const Appbar = () => {
                     </nav>
                 </div>
                 <div className="flex items-center space-x-4">
-                    <div className="relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
-                        <SuccessButton>Deposit</SuccessButton>
-                    </div>
-                    <div className="relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg blur opacity-50 group-hover:opacity-75 transition duration-300"></div>
-                        <PrimaryButton>Withdraw</PrimaryButton>
-                    </div>
+                    <SuccessButton>Deposit</SuccessButton>
+                    <PrimaryButton>Withdraw</PrimaryButton>
                 </div>
             </div>
         </div>

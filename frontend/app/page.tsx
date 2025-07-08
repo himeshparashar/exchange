@@ -5,15 +5,15 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main className="min-h-screen bg-black relative overflow-hidden">
-      {/* Animated Background */}
+      {/* Static Background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950/20 to-purple-950/20" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,rgba(147,51,234,0.1)_60deg,transparent_120deg)] animate-spin" style={{ animationDuration: '20s' }} />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950/10 to-purple-950/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(147,51,234,0.05),transparent_50%)]" />
       </div>
 
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-[size:100px_100px]" />
+      {/* Subtle Grid Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
 
       {/* Hero Section */}
       <div className="relative z-10">
@@ -21,46 +21,37 @@ export default function Home() {
           <div className="mx-auto max-w-6xl text-center">
             {/* Platform Badge */}
             <div className="mb-8 inline-flex">
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur opacity-75 animate-pulse"></div>
-                <span className="relative inline-block px-6 py-3 rounded-full bg-black/80 backdrop-blur-sm border border-blue-500/30 text-blue-400 text-sm font-semibold tracking-wide">
-                  ⚡ NEXT-GEN TRADING PLATFORM
-                </span>
-              </div>
+              <span className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 text-blue-300 text-base font-medium backdrop-blur-sm">
+                🚀 Next-Generation Trading Platform
+              </span>
             </div>
 
             {/* Main Heading */}
-            <div className="relative mb-8">
-              <h1 className="text-6xl md:text-8xl font-black mb-6 tracking-tight">
+            <div className="relative mb-12">
+              <h1 className="text-7xl md:text-8xl lg:text-9xl font-black mb-6 tracking-tight leading-none">
                 <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
                   TRADE
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent relative">
                   SPHERE
-                  <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse" />
+                  <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
                 </span>
               </h1>
-              
-              {/* Floating Elements */}
-              <div className="absolute -top-12 -left-12 w-24 h-24 bg-blue-500/20 rounded-full blur-xl animate-bounce" style={{ animationDelay: '0s', animationDuration: '3s' }} />
-              <div className="absolute -top-8 -right-16 w-16 h-16 bg-purple-500/20 rounded-full blur-xl animate-bounce" style={{ animationDelay: '1s', animationDuration: '4s' }} />
-              <div className="absolute -bottom-8 left-1/3 w-20 h-20 bg-pink-500/20 rounded-full blur-xl animate-bounce" style={{ animationDelay: '2s', animationDuration: '3.5s' }} />
             </div>
 
             {/* Subheading */}
             <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-4xl mx-auto leading-relaxed font-light">
-              Experience the future of cryptocurrency trading with 
-              <span className="text-blue-400 font-semibold"> institutional-grade tools</span>, 
-              <span className="text-purple-400 font-semibold"> real-time analytics</span>, and 
+              Experience institutional-grade cryptocurrency trading with 
+              <span className="text-blue-400 font-semibold"> advanced analytics</span>, 
+              <span className="text-purple-400 font-semibold"> real-time data</span>, and 
               <span className="text-pink-400 font-semibold"> lightning-fast execution</span>
             </p>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
               <Link href="/markets" className="group relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
-                <div className="relative inline-flex items-center px-10 py-5 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-2xl">
+                <div className="relative inline-flex items-center px-10 py-5 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-xl">
                   Explore Markets
                   <svg className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
