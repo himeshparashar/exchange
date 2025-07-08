@@ -17,12 +17,15 @@ async function main() {
     console.log("connected to redis");
 
     while (true) {
-        const response = await redisClient.rPop("messages" as string)
+        // Use blocking pop with 5 second timeout to avoid constant polling
+        const response = await redisClient.brPop("messages", 5);
         if (!response) {
-
-        }  else {
-            console.log(`Processing message: ${response}`);
-            engine.process(JSON.parse(response));
+            // Timeout occurred, continue (this gives us a chance to handle shutdown gracefully)
+            continue;
+        } else {
+            const messageData = response.element;
+            console.log(`Processing message: ${messageData}`);
+            engine.process(JSON.parse(messageData));
         }        
     }
 
