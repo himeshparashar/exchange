@@ -6,8 +6,8 @@ import { Appbar } from "./components/Appbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "CryptoEx - Professional Cryptocurrency Exchange",
-  description: "Trade cryptocurrencies with professional-grade tools, real-time data, and lightning-fast execution.",
+  title: "TradeSphere - Advanced Cryptocurrency Trading Platform",
+  description: "Experience the future of cryptocurrency trading with institutional-grade tools, real-time analytics, and lightning-fast execution on TradeSphere.",
 };
 
 export default function RootLayout({
