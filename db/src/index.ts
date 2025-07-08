@@ -91,15 +91,18 @@ async function main() {
   let messageCount = 0;
   
   while (true) {
-    const response = await redisClient.rPop("db_processor" as string);
+    // Use blocking pop with 5 second timeout to avoid constant polling
+    const response = await redisClient.brPop("db_processor", 5);
     if (!response) {
-      // No message available, continue polling
+      // Timeout occurred, continue (this gives us a chance to handle shutdown gracefully)
+      continue;
     } else {
+      const messageData = response.element;
       messageCount++;
-      console.log(`Processing message #${messageCount}: ${response}`);
+      console.log(`Processing message #${messageCount}: ${messageData}`);
       
       try {
-        const data: DbMessage = JSON.parse(response);
+        const data: DbMessage = JSON.parse(messageData);
         console.log(`Parsed message type: ${data.type}`);
 
         if (data.type === "TRADE_ADDED") {
@@ -138,7 +141,7 @@ async function main() {
         }
       } catch (error) {
         console.error(`Error processing message #${messageCount}:`, error);
-        console.error("Raw message:", response);
+        console.error("Raw message:", messageData);
       }
     }
   }
