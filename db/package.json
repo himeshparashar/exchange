@@ -9,6 +9,7 @@
     "dev": "ts-node src/index.ts",               
     "migrate": "ts-node src/migrate.ts",
     "seed:db": "npm run build && node dist/seed-db.js",
+    "seed:markets": "ts-node src/seed-multiple-markets.ts",
     "refresh:views": "npm run build && node dist/cron.js"
   },
   "keywords": [],

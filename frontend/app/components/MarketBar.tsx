@@ -62,69 +62,105 @@ export const MarketBar = ({ market }: { market: string }) => {
     };
   }, [market]);
 
+  if (!ticker) {
+    return (
+      <div className="w-full bg-slate-900/50 backdrop-blur-sm border-b border-slate-800 px-6 py-4">
+        <div className="flex items-center space-x-6 animate-pulse">
+          <div className="h-6 bg-slate-700 rounded w-24"></div>
+          <div className="h-4 bg-slate-700 rounded w-16"></div>
+          <div className="h-4 bg-slate-700 rounded w-20"></div>
+          <div className="h-4 bg-slate-700 rounded w-16"></div>
+        </div>
+      </div>
+    );
+  }
+
+  const priceChange = parseFloat(ticker.priceChangePercent || "0");
+  const isPositive = priceChange >= 0;
+
+  const formatPrice = (price: string) => {
+    const num = parseFloat(price);
+    return num > 1
+      ? num.toLocaleString("en-US", { maximumFractionDigits: 2 })
+      : num.toFixed(6);
+  };
+
+  const formatVolume = (volume: string) => {
+    const num = parseFloat(volume);
+    if (num > 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num > 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toFixed(0);
+  };
+
   return (
-    <div>
-      <div className="flex items-center flex-row relative w-full overflow-hidden border-b border-slate-800">
-        <div className="flex items-center justify-between flex-row no-scrollbar overflow-auto pr-4">
-          <MarketDisplay market={market} />
-          <div className="flex items-center flex-row space-x-8 pl-4">
-            <div className="flex flex-col h-full justify-center">
-              <p className="font-medium tabular-nums text-greenText text-md text-green-500">
-                ${ticker?.lastPrice || "-"}
-              </p>
-              <p className="font-medium text-sm text-sm tabular-nums">
-                ${ticker?.lastPrice || "-"}
-              </p>
+    <div className="w-full bg-slate-900/50 backdrop-blur-sm border-b border-slate-800 px-6 py-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-8">
+          {/* Market Symbol */}
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+              {ticker.symbol.split("_")[0].charAt(0)}
             </div>
-            <div className="flex flex-col">
-              <p className="font-medium text-xs text-slate-400 text-sm">
-                24H Change
-              </p>
-              <p
-                className={`text-sm font-medium tabular-nums leading-5 text-sm text-greenText ${
-                  Number(ticker?.priceChange) > 0
-                    ? "text-green-500"
-                    : "text-red-500"
+            <div>
+              <h1 className="text-xl font-bold text-white">
+                {ticker.symbol.replace("_", "/")}
+              </h1>
+              <div className="text-sm text-slate-400">
+                {ticker.symbol.split("_")[0]} to {ticker.symbol.split("_")[1]}
+              </div>
+            </div>
+          </div>
+
+          {/* Price Information */}
+          <div className="flex items-center space-x-6">
+            <div>
+              <div className="text-sm text-slate-400">Last Price</div>
+              <div className="text-2xl font-bold text-white">
+                ${formatPrice(ticker.lastPrice)}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-sm text-slate-400">24h Change</div>
+              <div
+                className={`flex items-center space-x-1 text-lg font-semibold ${
+                  isPositive ? "text-green-400" : "text-red-400"
                 }`}
               >
-                {Number(ticker?.priceChange || 0) > 0 ? "+" : ""}{" "}
-                {ticker?.priceChange || "-"}{" "}
-                {ticker?.priceChangePercent
-                  ? Number(ticker.priceChangePercent).toFixed(2)
-                  : "-"}
-                %
-              </p>
-            </div>
-            <div className="flex flex-col">
-              <p className="font-medium text-xs text-slate-400 text-sm">
-                24H High
-              </p>
-              <p className="text-sm font-medium tabular-nums leading-5 text-sm ">
-                {ticker?.high || "-"}
-              </p>
-            </div>
-            <div className="flex flex-col">
-              <p className="font-medium text-xs text-slate-400 text-sm">
-                24H Low
-              </p>
-              <p className="text-sm font-medium tabular-nums leading-5 text-sm ">
-                {ticker?.low || "-"}
-              </p>
-            </div>
-            <button
-              type="button"
-              className="font-medium transition-opacity hover:opacity-80 hover:cursor-pointer text-base text-left"
-              data-rac=""
-            >
-              <div className="flex flex-col">
-                <p className="font-medium text-xs text-slate-400 text-sm">
-                  24H Volume
-                </p>
-                <p className="mt-1 text-sm font-medium tabular-nums leading-5 text-sm ">
-                  {ticker?.volume || "-"}
-                </p>
+                <span>{isPositive ? "↗" : "↘"}</span>
+                <span>{Math.abs(priceChange).toFixed(2)}%</span>
               </div>
-            </button>
+            </div>
+
+            <div>
+              <div className="text-sm text-slate-400">24h High</div>
+              <div className="text-lg font-semibold text-white">
+                ${formatPrice(ticker.high)}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-sm text-slate-400">24h Low</div>
+              <div className="text-lg font-semibold text-white">
+                ${formatPrice(ticker.low)}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-sm text-slate-400">24h Volume</div>
+              <div className="text-lg font-semibold text-white">
+                {formatVolume(ticker.volume)}{" "}
+                {ticker.symbol.split("_")[0]}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Market Status */}
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-green-500/20 border border-green-500/30">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span className="text-green-400 text-sm font-medium">Live</span>
           </div>
         </div>
       </div>
