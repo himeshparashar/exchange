@@ -15,10 +15,7 @@ export function TradeView({
     const init = async () => {
       let klineData: KLine[] = [];
       try {
-        // Get data from a very early date (January 1, 2020) to current time to fetch "all time" data
-        const startTime = Math.floor(new Date('2020-01-01').getTime() / 1000);
-        const endTime = Math.floor(new Date().getTime() / 1000);
-        klineData = await getKlines(market, "1h", startTime, endTime); 
+        klineData = await getKlines(market, "1h", Math.floor((new Date().getTime() - 1000 * 60 * 60 * 24 * 7) / 1000), Math.floor(new Date().getTime() / 1000)); 
       } catch (e) { }
 
       if (chartRef) {
