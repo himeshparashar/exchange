@@ -39,9 +39,11 @@ export async function getKlines(
   startTime: number,
   endTime: number
 ): Promise<KLine[]> {
+  console.log(`Fetching klines for ${market} from ${new Date(startTime * 1000)} to ${new Date(endTime * 1000)}`);
   const response = await axios.get(
     `${BASE_URL}/klines?symbol=${market}&interval=${interval}&startTime=${startTime}&endTime=${endTime}`
   );
   const data: KLine[] = response.data;
+  console.log(`Received ${data.length} kline records`);
   return data.sort((x, y) => (Number(x.end) < Number(y.end) ? -1 : 1));
 }
